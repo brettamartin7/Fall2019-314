@@ -2,8 +2,8 @@ public class Project1 {
 	public static void main(String[] args) 
 	{
 		// Instantiate Primes Class
-		Primes p = new Primes();
-		
-		MainWindow mw = new MainWindow(Config.APPLICATIONNAME, p);
+		PrimeOperations p = new PrimeOperations();
+		Config.NAME = "My Prime Generator";
+		MainWindow mw = new MainWindow(Config.NAME, p);
 	}
 }
