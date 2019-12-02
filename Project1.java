@@ -3,7 +3,7 @@ public class Project1 {
 	{
 		// Instantiate Primes Class
 		PrimeOperations p = new PrimeOperations();
-		Config.NAME = "My Prime Generator";
-		MainWindow mw = new MainWindow(Config.NAME, p);
+		Config.APPLICATION_NAME = "My Prime Generator";
+		MainWindow mw = new MainWindow(Config.APPLICATION_NAME, p);
 	}
 }

@@ -19,6 +19,7 @@ public class PrimeOperations extends NaiveTest {
 	public ArrayList<BigInteger> getPrimeList() {return primeList;}
 	public ArrayList<Pair<BigInteger>> getPrimePairList() {return primePairList;}
 	public ArrayList<Pair<BigInteger>> getHexagonCrossList() {return hexagonCrossList;}
+
 	
 	//Constructor
 	public PrimeOperations() {
@@ -59,7 +60,7 @@ public class PrimeOperations extends NaiveTest {
 	}
 	
 	// Add a prime to the prime list if and only if it is not already in the list. (ignore duplicates)
-	private void addPrime(BigInteger x)
+	public void addPrime(BigInteger x)
 	{
 		if (!primeList.contains(x)) {			//Check if x is already in the list
 			primeList.add(x);	//Make sure x is a prime number before adding it
@@ -67,14 +68,14 @@ public class PrimeOperations extends NaiveTest {
 	}
 	
 	//Add a pair of BigIntegers to the twin primes list if it is not already in the list. (ignore duplicates)
-	private void addTwinPrime(Pair<BigInteger> pair) {
+	public void addTwinPrime(Pair<BigInteger> pair) {
 		if (!primePairList.contains(pair)) {
 			primePairList.add(pair);
 		}
 	}
 	
 	//Add a pair of HexagonCrosses to hexagon cross list if it is not already in the list. (ignore duplicates)
-	private void addHexagonCross(Pair<BigInteger> pair) {
+	public void addHexagonCross(Pair<BigInteger> pair) {
 		if (!hexagonCrossList.contains(pair)) {
 			hexagonCrossList.add(pair);
 		}
@@ -168,7 +169,12 @@ public class PrimeOperations extends NaiveTest {
 		hexagonCrossList.clear();
 		
 		int i = start;
-		int j = i + 1;
+		int j;
+		
+		//Avoid divide by 0
+		if (start == 0) j = i + 1;
+		else j = i * 2;
+		
 		int generatedHexCrosses = 0;
 		
 		while (generatedHexCrosses < count) {
@@ -186,22 +192,76 @@ public class PrimeOperations extends NaiveTest {
 			j = i * 2;
 		}
 	}
-}
 	
-/*
+	//----------------------Prime Iterator--------------------------
+	public class PrimeIterator implements Iterator<BigInteger> {
+		private int position = 0;
+		
+		public boolean hasNext() {
+			if (position < primeList.size()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		public BigInteger next() {
+			if (this.hasNext())
+				return primeList.get(position++);
+			else
+				return null;
+		}
+	}
+	
 	public class IterablePrimes implements Iterable<BigInteger>
 	{		
-	
+
+		@Override
+		public Iterator<BigInteger> iterator() {
+			return new PrimeIterator();
+		}
+		
 	}
 	
 	public IterablePrimes iteratePrimes() { return new IterablePrimes();}
-
-	public class IterableCrosses implements Iterable<BigInteger>
-	{		
+	//-------------------------End Primes Iterator---------------------------
 	
+	//-------------------------Hexagon Cross Iterator-------------------------
+	public class CrossIterator implements Iterator<Pair<BigInteger>> {
+		private int position = 0;
+		
+		public boolean hasNext() {
+			if (position < hexagonCrossList.size()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		public Pair<BigInteger> next() {
+			if (this.hasNext())
+				return hexagonCrossList.get(position++);
+			else
+				return null;
+		}
 	}
 	
-	public IterableCrosses iterateCrosses() { return new IterablePrimes();}
-*/
+	public class IterableCrosses implements Iterable<Pair<BigInteger>>
+	{		
+		@Override
+		public Iterator<Pair<BigInteger>> iterator() {
+			return new CrossIterator(); 
+		}
+	}
+
+	public IterableCrosses iterateCrosses() { return new IterableCrosses();}
+	//------------------------------End Hexagon Cross Iterator-----------------------
+	
+	
+}
+	
+
+	
+
 
 

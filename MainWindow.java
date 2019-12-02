@@ -20,7 +20,8 @@ import javax.swing.SwingConstants;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
-
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
 
 public class MainWindow extends JFrame implements ActionListener
 {
@@ -32,13 +33,16 @@ public class MainWindow extends JFrame implements ActionListener
 			
 			g.setColor(Color.BLACK);
 			
+			//Draws the grey lines across the screen
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setStroke(new BasicStroke(3));
 			g2.setColor(Color.lightGray);
 			Line2D line = new Line2D.Float(0,100,size.width,100);
 			Line2D line2 = new Line2D.Float(0,200,size.width, 200);
+			Line2D line3 = new Line2D.Float(0, 320, size.width, 320);
 			g2.draw(line);
 			g2.draw(line2);
+			g2.draw(line3);
 		}
 	
 		
@@ -47,8 +51,8 @@ public class MainWindow extends JFrame implements ActionListener
 	private PrimeOperations m_Primes;
 	
 	//TextFields
-	private JTextField tfPrimeFileName;
-	private JTextField tfCrossFileName;
+	private JTextField primeTextField = new JTextField("");
+	private JTextField crossTextField = new JTextField("");
 	
 	//Labels
 	private JLabel lblStatus = new JLabel("");
@@ -57,6 +61,9 @@ public class MainWindow extends JFrame implements ActionListener
 	private JLabel lblCrossesGenerated;
 	private JLabel lblLengthLargestPrime;
 	private JLabel lblLengthLargestCrosses;
+	
+	private JLabel primeTextFieldLabel = new JLabel("Note: Loading in primes uses an absolute path, use the browse button. Saving primes will save it to your data_path in a file named primesOutput.txt");
+	private JLabel crossTextFieldLabel = new JLabel("Note: Loading in crosses uses an absolute path, use the browse button. Saving crosses will save it to your data_path in a file named crossOutput.txt");
 	
 	//Buttons
 	private JButton primeLoad;
@@ -76,13 +83,25 @@ public class MainWindow extends JFrame implements ActionListener
 		generateMainWindow(name);
 	}
 	
+	private void changeJLabel(final JLabel label, final String text) {
+	  EventQueue.invokeLater(new Runnable() {
+	    @Override
+	    public void run() {
+	      label.setText(text);
+	    }
+	  });
+	}
+	
+	//Used to create the main window
 	protected void generateMainWindow(String name) {
-
+		
+		//Main Frame
 		JFrame frame = new JFrame(name);
 		frame.setBackground(Color.decode("#500000"));
 		frame.setSize(1000, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		//Main Panel
 		MainPanel mainPanel = new MainPanel();
 		frame.add(mainPanel);
 		placeComponents(mainPanel);
@@ -101,17 +120,23 @@ public class MainWindow extends JFrame implements ActionListener
 		panel.add(primesFileLabel);
 		
 		//Primes Generated Label
-		lblPrimesGenerated = new JLabel("Primes Generated: 0");
+		lblPrimesGenerated = new JLabel("Primes generated: 0");
 		lblPrimesGenerated.setBounds(385,60,200,40);
 		lblPrimesGenerated.setForeground(Color.white);
-		lblPrimesGenerated.setFont(new Font(primesFileLabel.getFont().getName(),
-				primesFileLabel.getFont().getStyle(), 20));
+		lblPrimesGenerated.setFont(new Font(lblPrimesGenerated.getFont().getName(),
+				lblPrimesGenerated.getFont().getStyle(), 20));
 		panel.add(lblPrimesGenerated);
 		
 		//Prime TextField
-		JTextField primeTextField = new JTextField(20);
 		primeTextField.setBounds(10,20,850,26);
 		panel.add(primeTextField);
+		
+		//Prime TextFieldLabel
+		primeTextFieldLabel.setBounds(10, -5, 1000, 30);
+		primeTextFieldLabel.setForeground(Color.white);
+		primeTextFieldLabel.setFont(new Font(primeTextFieldLabel.getFont().getName(),
+				primeTextFieldLabel.getFont().getStyle(), 12));
+		panel.add(primeTextFieldLabel);
 		
 		//Prime Load Button
 		primeLoad = new JButton("Load");
@@ -154,9 +179,15 @@ public class MainWindow extends JFrame implements ActionListener
 		panel.add(lblCrossesGenerated);
 		
 		//Cross TextField
-		JTextField crossTextField = new JTextField(20);
 		crossTextField.setBounds(10,120,850,26);
 		panel.add(crossTextField);
+		
+		//Cross TextField Label
+		crossTextFieldLabel.setBounds(10, 96, 1000, 30);
+		crossTextFieldLabel.setForeground(Color.white);
+		crossTextFieldLabel.setFont(new Font(crossTextFieldLabel.getFont().getName(),
+				crossTextFieldLabel.getFont().getStyle(), 12));
+		panel.add(crossTextFieldLabel);
 		
 		//Cross Load Button
 		crossLoad = new JButton("Load");
@@ -213,35 +244,77 @@ public class MainWindow extends JFrame implements ActionListener
 		generateCrossesButton.setName("Generate Crosses");
 		generateCrossesButton.addActionListener(this);
 		panel.add(generateCrossesButton);
+		
+		//Status Label
+		lblStatus.setBounds(10, 320, 300, 30);
+		lblStatus.setForeground(Color.white);
+		//lblStatus.setFont(lblStatus.getFont().deriveFont(16f));
+		lblStatus.setText("Status: Waiting");
+		panel.add(lblStatus);
 	}
 	
+	//actionListener for buttons on main screen
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == primeSave) {
-			PrimeOperations primeOp = new PrimeOperations();
-			primeOp.generatePrimes(0, 100);
-			primeOp.printPrimes();
-		} else if (e.getSource() == primeLoad) {
-			System.out.println("Prime Load Pressed");
-		} else if (e.getSource() == primeBrowse) {
-			System.out.println("Prime Browse Pressed");
-		} else if (e.getSource() == crossSave) {
-			System.out.println("Cross Save Pressed");
-		} else if (e.getSource() == crossLoad) {
-			System.out.println("Cross Load Pressed"); 
-		} else if (e.getSource() == crossBrowse) {
-			System.out.println("Cross Browse Pressed");
-		} else if (e.getSource() == generatePrimesButton) {
+		if (e.getSource() == primeSave) {				//Prime Save Button
+			String outputPath = Config.DATA_PATH + "primeOutput.txt";
+			FileAccess.savePrimes(m_Primes,  outputPath);
+			lblStatus.setText("File Saved to " +  outputPath);
+			System.out.println("File saved to " + outputPath);
+			
+		} else if (e.getSource() == primeLoad) {		//Prime Load Button
+			Config.PRIME_PATH = primeTextField.getText();
+			FileAccess.loadPrimes(m_Primes, Config.PRIME_PATH);
+			m_Primes.printPrimes();
+			changeJLabel(lblStatus, "Primes have been generated");
+			
+			//updateStats();
+			
+		} else if (e.getSource() == primeBrowse) {		//Prime Browse Button
+			String filePath = getFile();
+			primeTextField.setText(filePath);
+			
+		} else if (e.getSource() == crossSave) {		//Cross Save Button
+			String outputPath = Config.DATA_PATH + "crossOutput.txt";
+			FileAccess.saveCrosses(m_Primes, outputPath);
+			lblStatus.setText("File saved to " + outputPath);
+			System.out.println("File saved to " + outputPath);
+			
+		} else if (e.getSource() == crossLoad) {		//Cross Load Button
+			Config.CROSS_PATH = crossTextField.getText();
+			FileAccess.loadCrosses(m_Primes, Config.CROSS_PATH);
+			m_Primes.printHexes();
+			lblStatus.setText("Crosses have been laoded.");
+			
+		} else if (e.getSource() == crossBrowse) {		//Cross Browse Button
+			String filePath = getFile();
+			crossTextField.setText(filePath);
+			
+		} else if (e.getSource() == generatePrimesButton) {		//Primes Generate Button
 			popupGeneratePrimes();
-		} else if (e.getSource() == generateCrossesButton) {
+		} else if (e.getSource() == generateCrossesButton) {	//Cross Generate Button
 			popupGenerateCrosses();
 		}
+		revalidate();
 	}
-
+	
+	private String getFile() {
+		JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+		fileChooser.setDialogTitle("Choose a file to open: ");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int success = fileChooser.showOpenDialog(null);
+		if (success == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			String absolutePath = selectedFile.getAbsolutePath();
+			return absolutePath;
+		}
+		return "";
+	}
+	
 	protected void popupGeneratePrimes()
 	{
 		JDialog dPrimes = new JDialog(this, "Prime Number Generation");
 		GridBagLayout gridLayout = new GridBagLayout();
-		dPrimes.getContentPane().setBackground(new Color(52, 0, 0));
+		dPrimes.getContentPane().setBackground(Color.decode("500000"));
 		dPrimes.getContentPane().setLayout(gridLayout);
 		
 		GridBagConstraints gbcDialog = new GridBagConstraints();
@@ -409,7 +482,7 @@ public class MainWindow extends JFrame implements ActionListener
 	  		int count = Integer.parseInt(tfCount.getText());
 	   		m_Primes.generateHexPrimes(start.intValue(), count);
 	   		m_Primes.printHexes();
-	   		lblStatus.setText("Status: Excited. Primes have been generated.");
+	   		lblStatus.setText("Status: Excited. Crosses have been generated.");
 	   		updateStats();
 	  		dCrosses.dispose();
 	  	}
@@ -457,27 +530,31 @@ public class MainWindow extends JFrame implements ActionListener
 		dCrosses.pack(); // Knowing what this is and why it is needed is important. You should read the documentation on this function!
 		dCrosses.setVisible(true);	
 	}
+	
 	// This function updates all the GUI statistics. (# of primes, # of crosses, etc)
 	private void updateStats()
 	{
+		//Get prime and cross size
 		int primesGenerated = m_Primes.getPrimeList().size();
 		int crossesGenerated = m_Primes.getHexagonCrossList().size();
-		//lblPrimesGenerated.setText("Primes generated: " + primesGenerated);
-		//lblCrossesGenerated.setText("Crosses generated: " + crossesGenerated);
+		lblPrimesGenerated.setText("Primes generated: " + primesGenerated);
+		lblCrossesGenerated.setText("Crosses generated: " + crossesGenerated);
 		
+		//Get largest prime digit
 		if (m_Primes.getPrimeList().size() != 0) {
 			BigInteger largestPrime = m_Primes.getPrimeList().get(m_Primes.getPrimeList().size() - 1);
 			int lengthLargestPrime = String.valueOf(largestPrime).length();
-			//lblLengthLargestPrime.setText("The largest prime has " + lengthLargestPrime + " digits");
+			lblLengthLargestPrime.setText("The largest prime has " + lengthLargestPrime + " digits");
 		}
 		
+		//Get largest hexagon cross digit
 		if (m_Primes.getHexagonCrossList().size() != 0) {
 			Pair<BigInteger> largestCrossPair = m_Primes.getHexagonCrossList().get(m_Primes.getHexagonCrossList().size() - 1);
 			BigInteger largestCross1 = largestCrossPair.getPairVal1();
 			BigInteger largestCross2 = largestCrossPair.getPairVal2();
 			int lengthLargestCross1 = String.valueOf(largestCross1).length();
 			int lengthLargestCross2 = String.valueOf(largestCross2).length();
-			//lblLengthLargestCrosses.setText("The largest hexagon cross has " + lengthLargestCross1 + " digits and " + lengthLargestCross2 + " digits");
+			lblLengthLargestCrosses.setText("The largest hexagon cross has " + lengthLargestCross1 + " digits and " + lengthLargestCross2 + " digits");
 		}
  	}
 
