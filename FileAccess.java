@@ -27,6 +27,7 @@ public class FileAccess {
 		 scan = new Scanner(file);
 	} catch (FileNotFoundException fe) {
 		System.out.println(fe);
+		return false;
 	}
 	
 	int primeValue;
@@ -52,6 +53,7 @@ public class FileAccess {
     	scan = new Scanner(file);
     } catch (FileNotFoundException fe) {
     	System.out.println(fe);
+    	return false;
     }
     
     int pairVal1;
@@ -81,6 +83,7 @@ public class FileAccess {
 		file = new FileWriter(filePath);
 	} catch (IOException ie) {
 		System.out.println(ie);
+		return false;
 	}
 	
 	//Write to the file
@@ -106,6 +109,7 @@ public class FileAccess {
 		file = new FileWriter(filePath);
 	} catch (IOException ie) {
 		System.out.println(ie);
+		return false;
 	}
 	
 	//Write to the file

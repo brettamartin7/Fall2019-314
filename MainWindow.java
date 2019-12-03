@@ -51,8 +51,8 @@ public class MainWindow extends JFrame implements ActionListener
 	private PrimeOperations m_Primes;
 	
 	//TextFields
-	private JTextField primeTextField = new JTextField("");
-	private JTextField crossTextField = new JTextField("");
+	private JTextField primeTextField = new JTextField("primesInput.txt");
+	private JTextField crossTextField = new JTextField("crossesInput.txt");
 	
 	//Labels
 	private JLabel lblStatus = new JLabel("");
@@ -62,8 +62,8 @@ public class MainWindow extends JFrame implements ActionListener
 	private JLabel lblLengthLargestPrime;
 	private JLabel lblLengthLargestCrosses;
 	
-	private JLabel primeTextFieldLabel = new JLabel("Note: Loading in primes uses an absolute path, use the browse button. Saving primes will save it to your data_path in a file named primesOutput.txt");
-	private JLabel crossTextFieldLabel = new JLabel("Note: Loading in crosses uses an absolute path, use the browse button. Saving crosses will save it to your data_path in a file named crossOutput.txt");
+	private JLabel primeTextFieldLabel = new JLabel("Note: Loading in primes uses a relative path, make sure to set up your data path in Config. Saving primes will save it to your data_path in a file named primesOutput.txt");
+	private JLabel crossTextFieldLabel = new JLabel("Note: Loading in crosses uses a relative path, make sure to set up your data path in Config. Saving crosses will save it to your data_path in a file named crossOutput.txt");
 	
 	//Buttons
 	private JButton primeLoad;
@@ -75,34 +75,28 @@ public class MainWindow extends JFrame implements ActionListener
 	private JButton generatePrimesButton;
 	private JButton generateCrossesButton;
 	
-	
+	//MainPanel
+	MainPanel mainPanel;
+	JFrame frame;
 	
 	MainWindow(String name, PrimeOperations p)
 	{	
 		m_Primes = new PrimeOperations();
 		generateMainWindow(name);
 	}
-	
-	private void changeJLabel(final JLabel label, final String text) {
-	  EventQueue.invokeLater(new Runnable() {
-	    @Override
-	    public void run() {
-	      label.setText(text);
-	    }
-	  });
-	}
+
 	
 	//Used to create the main window
 	protected void generateMainWindow(String name) {
 		
 		//Main Frame
-		JFrame frame = new JFrame(name);
+		frame = new JFrame(name);
 		frame.setBackground(Color.decode("#500000"));
 		frame.setSize(1000, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		//Main Panel
-		MainPanel mainPanel = new MainPanel();
+		mainPanel = new MainPanel();
 		frame.add(mainPanel);
 		placeComponents(mainPanel);
 		frame.setVisible(true);
@@ -115,13 +109,13 @@ public class MainWindow extends JFrame implements ActionListener
 		JLabel primesFileLabel = new JLabel("Primes File");
 		primesFileLabel.setBounds(10,55,200,40);
 		primesFileLabel.setForeground(Color.white);
-		primesFileLabel.setFont(new Font(primesFileLabel.getFont().getName(),
-								primesFileLabel.getFont().getStyle(), 30));
+		primesFileLabel.setFont(new Font("Arial",
+								Font.PLAIN, 30));
 		panel.add(primesFileLabel);
 		
 		//Primes Generated Label
 		lblPrimesGenerated = new JLabel("Primes generated: 0");
-		lblPrimesGenerated.setBounds(385,60,200,40);
+		lblPrimesGenerated.setBounds(385,60,500,40);
 		lblPrimesGenerated.setForeground(Color.white);
 		lblPrimesGenerated.setFont(new Font(lblPrimesGenerated.getFont().getName(),
 				lblPrimesGenerated.getFont().getStyle(), 20));
@@ -164,7 +158,7 @@ public class MainWindow extends JFrame implements ActionListener
 		
 		//Cross Label
 		JLabel crossFileLabel = new JLabel("Hexagon Cross File");
-		crossFileLabel.setBounds(10,155,300,40);
+		crossFileLabel.setBounds(10,155,400,40);
 		crossFileLabel.setForeground(Color.white);
 		crossFileLabel.setFont(new Font(crossFileLabel.getFont().getName(),
 				crossFileLabel.getFont().getStyle(), 30));
@@ -172,7 +166,7 @@ public class MainWindow extends JFrame implements ActionListener
 		
 		//Crosses Generated Label
 		lblCrossesGenerated = new JLabel("Crosses Generated: 0");
-		lblCrossesGenerated.setBounds(380,160,250,40);
+		lblCrossesGenerated.setBounds(380,160,400,40);
 		lblCrossesGenerated.setForeground(Color.white);
 		lblCrossesGenerated.setFont(new Font(lblCrossesGenerated.getFont().getName(),
 				lblCrossesGenerated.getFont().getStyle(), 20));
@@ -223,7 +217,7 @@ public class MainWindow extends JFrame implements ActionListener
 		
 		//Largest Primes Length Label
 		lblLengthLargestPrime = new JLabel("The largest prime has 0 digits");
-		lblLengthLargestPrime.setBounds(375, 250, 300, 30);
+		lblLengthLargestPrime.setBounds(375, 250, 500, 30);
 		lblLengthLargestPrime.setForeground(Color.white);
 		lblLengthLargestPrime.setFont(new Font(lblLengthLargestPrime.getFont().getName(),
 				lblLengthLargestPrime.getFont().getStyle(), 16));
@@ -231,7 +225,7 @@ public class MainWindow extends JFrame implements ActionListener
 		
 		//Largest Crosses Length Label
 		lblLengthLargestCrosses = new JLabel("The largest hexagon cross has 0 digits and 0 digits");
-		lblLengthLargestCrosses.setBounds(300, 270, 400, 30);
+		lblLengthLargestCrosses.setBounds(300, 270, 500, 30);
 		lblLengthLargestCrosses.setForeground(Color.white);
 		lblLengthLargestCrosses.setFont(new Font(lblLengthLargestCrosses.getFont().getName(),
 				lblLengthLargestCrosses.getFont().getStyle(), 16));
@@ -246,10 +240,11 @@ public class MainWindow extends JFrame implements ActionListener
 		panel.add(generateCrossesButton);
 		
 		//Status Label
-		lblStatus.setBounds(10, 320, 300, 30);
+		lblStatus.setBounds(10, 320, 1000, 30);
 		lblStatus.setForeground(Color.white);
-		//lblStatus.setFont(lblStatus.getFont().deriveFont(16f));
 		lblStatus.setText("Status: Waiting");
+		lblStatus.setFont(new Font(lblStatus.getFont().getName(),
+				lblStatus.getFont().getStyle(), 16));
 		panel.add(lblStatus);
 	}
 	
@@ -257,46 +252,75 @@ public class MainWindow extends JFrame implements ActionListener
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == primeSave) {				//Prime Save Button
 			String outputPath = Config.DATA_PATH + "primeOutput.txt";
-			FileAccess.savePrimes(m_Primes,  outputPath);
-			lblStatus.setText("File Saved to " +  outputPath);
-			System.out.println("File saved to " + outputPath);
+			boolean success = FileAccess.savePrimes(m_Primes,  outputPath);
+			if (success) {	//Happy Path
+				lblStatus.setText("File Saved to " +  outputPath);
+			} else {		//Sad Path
+				lblStatus.setText("Error saving primes");
+			}
+			
+			frame.revalidate();
+			frame.repaint();
 			
 		} else if (e.getSource() == primeLoad) {		//Prime Load Button
-			Config.PRIME_PATH = primeTextField.getText();
-			FileAccess.loadPrimes(m_Primes, Config.PRIME_PATH);
+			Config.PRIME_PATH = Config.DATA_PATH + primeTextField.getText();
+			boolean success = FileAccess.loadPrimes(m_Primes, Config.PRIME_PATH);
 			m_Primes.printPrimes();
-			changeJLabel(lblStatus, "Primes have been generated");
 			
-			//updateStats();
+			if (success) {	//Happy Path
+				lblStatus.setText("Primes have been generated");
+				updateStats();
+			} else {		//Sad Path
+				lblStatus.setText("Error loading primes");
+			}
+			
+			frame.revalidate();
+			frame.repaint();
 			
 		} else if (e.getSource() == primeBrowse) {		//Prime Browse Button
-			String filePath = getFile();
-			primeTextField.setText(filePath);
+			String fileName = getFile();
+			primeTextField.setText(fileName);
 			
 		} else if (e.getSource() == crossSave) {		//Cross Save Button
 			String outputPath = Config.DATA_PATH + "crossOutput.txt";
-			FileAccess.saveCrosses(m_Primes, outputPath);
-			lblStatus.setText("File saved to " + outputPath);
-			System.out.println("File saved to " + outputPath);
+			boolean success = FileAccess.saveCrosses(m_Primes, outputPath);
+			
+			if (success) {	//Happy Path
+				lblStatus.setText("File saved to " + outputPath);
+			} else {		//Sad Path
+				lblStatus.setText("Error saving crosses");
+			}
+			
+			frame.revalidate();
+			frame.repaint();
 			
 		} else if (e.getSource() == crossLoad) {		//Cross Load Button
-			Config.CROSS_PATH = crossTextField.getText();
-			FileAccess.loadCrosses(m_Primes, Config.CROSS_PATH);
+			Config.CROSS_PATH = Config.DATA_PATH + crossTextField.getText();
+			boolean success = FileAccess.loadCrosses(m_Primes, Config.CROSS_PATH);
 			m_Primes.printHexes();
-			lblStatus.setText("Crosses have been laoded.");
+			
+			if (success) {	//Happy Path
+				lblStatus.setText("Crosses have been loaded.");
+				updateStats();
+			} else {		//Sad Path
+				lblStatus.setText("Error loading crosses.");
+			}
+			
+			frame.revalidate();
+			frame.repaint();
 			
 		} else if (e.getSource() == crossBrowse) {		//Cross Browse Button
-			String filePath = getFile();
-			crossTextField.setText(filePath);
+			String fileName = getFile();
+			crossTextField.setText(fileName);
 			
 		} else if (e.getSource() == generatePrimesButton) {		//Primes Generate Button
 			popupGeneratePrimes();
 		} else if (e.getSource() == generateCrossesButton) {	//Cross Generate Button
 			popupGenerateCrosses();
 		}
-		revalidate();
 	}
 	
+	//Fuction used to retrieve a file from the browser
 	private String getFile() {
 		JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		fileChooser.setDialogTitle("Choose a file to open: ");
@@ -304,8 +328,8 @@ public class MainWindow extends JFrame implements ActionListener
 		int success = fileChooser.showOpenDialog(null);
 		if (success == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
-			String absolutePath = selectedFile.getAbsolutePath();
-			return absolutePath;
+			String fileName = selectedFile.getName();
+			return fileName;
 		}
 		return "";
 	}
@@ -371,6 +395,7 @@ public class MainWindow extends JFrame implements ActionListener
       		BigInteger start = new BigInteger(tfStart.getText());
       		int count = Integer.parseInt(tfCount.getText());
        		m_Primes.generatePrimes(start.intValue(), count);
+       		m_Primes.printPrimes();
        		lblStatus.setText("Status: Excited. Primes have been generated.");
        		updateStats();
       		dPrimes.dispose();
@@ -378,6 +403,7 @@ public class MainWindow extends JFrame implements ActionListener
       	catch(NumberFormatException ex)
       	{
       		lblStatus.setText("You failed to type in an integer successfully. You are terrible at math. Shame.");
+      		updateStats();
       		dPrimes.dispose();
       	}
       	
@@ -489,6 +515,7 @@ public class MainWindow extends JFrame implements ActionListener
 	  	catch(NumberFormatException ex)
 	  	{
 	  		lblStatus.setText("You failed to type in an integer successfully. You are terrible at math. Shame.");
+	  		updateStats();
 	  		dCrosses.dispose();
 	  	}
 	  }
@@ -556,6 +583,10 @@ public class MainWindow extends JFrame implements ActionListener
 			int lengthLargestCross2 = String.valueOf(largestCross2).length();
 			lblLengthLargestCrosses.setText("The largest hexagon cross has " + lengthLargestCross1 + " digits and " + lengthLargestCross2 + " digits");
 		}
+		
+		frame.revalidate();
+		frame.repaint();
+		
  	}
 
 }

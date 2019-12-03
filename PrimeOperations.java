@@ -5,7 +5,7 @@ import java.math.BigInteger;
 /*
  *  Desc: This class generates primes, twin primes, and hexagon crosses using BigInteger data types.
  */
-public class PrimeOperations extends NaiveTest {
+public class PrimeOperations extends AKS {
 	
 	public Pair<BigInteger> createPair(BigInteger val1, BigInteger val2) {
 		 return new Pair<BigInteger>(val1, val2);
@@ -23,6 +23,7 @@ public class PrimeOperations extends NaiveTest {
 	
 	//Constructor
 	public PrimeOperations() {
+		super();
 		this.primeList = new ArrayList<BigInteger>();
 		this.primePairList = new ArrayList<Pair<BigInteger>>();
 		this.hexagonCrossList = new ArrayList<Pair<BigInteger>>();

@@ -33,4 +33,18 @@ public class Pair<T> {
 		System.out.println("Pair1: " + pairVal1 + "\tPair2: " + pairVal2);
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		
+		if (!(o instanceof Pair)) {
+			return false;
+		}
+		
+		Pair p = (Pair) o;
+		return (pairVal1 .equals(p.pairVal1) && pairVal2.equals(p.getPairVal2()));
+	}
+	
 }
