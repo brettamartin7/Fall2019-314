@@ -51,8 +51,8 @@ public class MainWindow extends JFrame implements ActionListener
 	private PrimeOperations m_Primes;
 	
 	//TextFields
-	private JTextField primeTextField = new JTextField("primesInput.txt");
-	private JTextField crossTextField = new JTextField("crossesInput.txt");
+	private JTextField primeTextField = new JTextField("primes.txt");
+	private JTextField crossTextField = new JTextField("crosses.txt");
 	
 	//Labels
 	private JLabel lblStatus = new JLabel("");
@@ -62,9 +62,7 @@ public class MainWindow extends JFrame implements ActionListener
 	private JLabel lblLengthLargestPrime;
 	private JLabel lblLengthLargestCrosses;
 	
-	private JLabel primeTextFieldLabel = new JLabel("Note: Loading in primes uses a relative path, make sure to set up your data path in Config. Saving primes will save it to your data_path in a file named primesOutput.txt");
-	private JLabel crossTextFieldLabel = new JLabel("Note: Loading in crosses uses a relative path, make sure to set up your data path in Config. Saving crosses will save it to your data_path in a file named crossOutput.txt");
-	
+
 	//Buttons
 	private JButton primeLoad;
 	private JButton primeSave;
@@ -125,12 +123,6 @@ public class MainWindow extends JFrame implements ActionListener
 		primeTextField.setBounds(10,20,850,26);
 		panel.add(primeTextField);
 		
-		//Prime TextFieldLabel
-		primeTextFieldLabel.setBounds(10, -5, 1000, 30);
-		primeTextFieldLabel.setForeground(Color.white);
-		primeTextFieldLabel.setFont(new Font(primeTextFieldLabel.getFont().getName(),
-				primeTextFieldLabel.getFont().getStyle(), 12));
-		panel.add(primeTextFieldLabel);
 		
 		//Prime Load Button
 		primeLoad = new JButton("Load");
@@ -175,13 +167,6 @@ public class MainWindow extends JFrame implements ActionListener
 		//Cross TextField
 		crossTextField.setBounds(10,120,850,26);
 		panel.add(crossTextField);
-		
-		//Cross TextField Label
-		crossTextFieldLabel.setBounds(10, 96, 1000, 30);
-		crossTextFieldLabel.setForeground(Color.white);
-		crossTextFieldLabel.setFont(new Font(crossTextFieldLabel.getFont().getName(),
-				crossTextFieldLabel.getFont().getStyle(), 12));
-		panel.add(crossTextFieldLabel);
 		
 		//Cross Load Button
 		crossLoad = new JButton("Load");
@@ -316,7 +301,22 @@ public class MainWindow extends JFrame implements ActionListener
 		} else if (e.getSource() == generatePrimesButton) {		//Primes Generate Button
 			popupGeneratePrimes();
 		} else if (e.getSource() == generateCrossesButton) {	//Cross Generate Button
-			popupGenerateCrosses();
+			
+			//No primes generated yet
+			if (m_Primes.getPrimeList().size() == 0) {
+				lblStatus.setText("You need to generate primes first!");
+			} else {
+				m_Primes.generateHexPrimes();
+				
+				//Check if any crosses were generated based off of prime list
+				if (m_Primes.getHexagonCrossList().size() == 0) {
+					lblStatus.setText("Sorry, not enough primes to generate hexagon crosses" );
+				} else {
+					lblStatus.setText("Hexagon crosses have been generated!");
+				}
+				m_Primes.printHexes();
+			}
+			updateStats();
 		}
 	}
 	
@@ -447,116 +447,6 @@ public class MainWindow extends JFrame implements ActionListener
 		dPrimes.setVisible(true);		
 	}
 
-	protected void popupGenerateCrosses() {
-		JDialog dCrosses = new JDialog(this, "Hexagon Cross Number Generation");
-		GridBagLayout gridLayout = new GridBagLayout();
-		dCrosses.getContentPane().setBackground(Color.decode("#500000"));
-		dCrosses.getContentPane().setLayout(gridLayout);
-		
-		GridBagConstraints gbcDialog = new GridBagConstraints();
-		gbcDialog.fill = GridBagConstraints.HORIZONTAL;
-		gbcDialog.anchor = GridBagConstraints.WEST;
-		gbcDialog.ipady = 10;
-		gbcDialog.weightx = .5;
-		gbcDialog.insets = new Insets(1,2,0,0);
-		gbcDialog.gridx = 0;
-		gbcDialog.gridy = 0;
-		
-		GridBagConstraints gbcPanel = new GridBagConstraints();
-		gbcPanel.anchor = GridBagConstraints.WEST;
-		gbcPanel.weightx = .5;
-		gbcPanel.insets = new Insets(1,2,0,0);
-		gbcPanel.gridx = 0;
-		gbcPanel.gridy = 0;
-		
-		JPanel pnlGenerate = new JPanel();
-		pnlGenerate.setLayout(new GridBagLayout());
-		
-		JLabel lblCount = new JLabel("Number of Crosses to Generate");
-		lblCount.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		pnlGenerate.add(lblCount, gbcPanel);
-		
-		JTextField tfCount = new JTextField();
-		lblCount.setLabelFor(tfCount);
-		tfCount.setColumns(30);
-		gbcPanel.gridx = 1;
-		pnlGenerate.add(tfCount, gbcPanel);
-		
-		JLabel lblStart = new JLabel("Starting Number (does not have to be prime)");
-		lblStart.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		gbcPanel.gridx = 0;
-		gbcPanel.gridy = 1;
-		pnlGenerate.add(lblStart, gbcPanel);
-		
-		JTextField tfStart = new JTextField();
-		lblStart.setLabelFor(tfStart);
-		tfStart.setColumns(30);
-		gbcPanel.gridx = 1;
-		pnlGenerate.add(tfStart, gbcPanel);
-		
-		dCrosses.add(pnlGenerate, gbcDialog);
-		
-		JPanel pnlButtons = new JPanel();
-		pnlButtons.setLayout(new GridBagLayout());
-		
-		JButton btnGenerateCrosses = new JButton("Generate Crosses");
-		btnGenerateCrosses.addActionListener(new ActionListener() {
-	  public void actionPerformed(ActionEvent e) {
-	  	try
-	  	{
-	  		BigInteger start = new BigInteger(tfStart.getText());
-	  		int count = Integer.parseInt(tfCount.getText());
-	   		m_Primes.generateHexPrimes(start.intValue(), count);
-	   		m_Primes.printHexes();
-	   		lblStatus.setText("Status: Excited. Crosses have been generated.");
-	   		updateStats();
-	  		dCrosses.dispose();
-	  	}
-	  	catch(NumberFormatException ex)
-	  	{
-	  		lblStatus.setText("You failed to type in an integer successfully. You are terrible at math. Shame.");
-	  		updateStats();
-	  		dCrosses.dispose();
-	  	}
-	  }
-	});
-		gbcPanel.gridx = 0;
-		gbcPanel.gridy = 0;
-		pnlButtons.add(btnGenerateCrosses, gbcPanel);
-		
-		JButton btnCancel = new JButton("Cancel Generation");
-		btnCancel.addActionListener(new ActionListener() {
-	  public void actionPerformed(ActionEvent e) {
-	  	dCrosses.dispose();
-      }
-	});
-		gbcPanel.anchor = GridBagConstraints.EAST;
-		gbcPanel.gridx = 1;
-		pnlButtons.add(btnCancel, gbcPanel);		
-		
-		gbcDialog.gridy = 1;
-		dCrosses.add(pnlButtons, gbcDialog);
-		
-		JPanel pnlStatus = new JPanel();
-		pnlStatus.setLayout(new GridBagLayout());
-	
-		gbcPanel.anchor = GridBagConstraints.SOUTHWEST;
-		gbcPanel.weightx = .5;
-		gbcPanel.insets = new Insets(1,2,0,0);
-		gbcPanel.gridx = 0;
-		gbcPanel.gridy = 1;
-	
-		JLabel lblNotice = new JLabel("Warning: This application is single threaded, and will freeze while generating primes.");
-		lblNotice.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		pnlStatus.add(lblNotice, gbcPanel);
-		
-		gbcDialog.gridy = 2;
-		dCrosses.add(pnlStatus, gbcDialog);
-		
-		dCrosses.setSize(200,200);
-		dCrosses.pack(); // Knowing what this is and why it is needed is important. You should read the documentation on this function!
-		dCrosses.setVisible(true);	
-	}
 	
 	// This function updates all the GUI statistics. (# of primes, # of crosses, etc)
 	private void updateStats()

@@ -4,5 +4,5 @@ public class Config {
   public static String CROSS_PATH = ""; // If you don't know what the static keyword does, you better go look it up now.
   public static String PRIME_PATH = "";
   public static String APPLICATION_NAME = "";
-  public static final String DATA_PATH = "C:\\Users\\Brett Martin\\Documents\\CSCE 314\\";
+  public static final String DATA_PATH = System.getProperty("user.dir") + "/data/";	//relative to folder code is ran from
 }

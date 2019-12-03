@@ -143,56 +143,41 @@ public class PrimeOperations extends AKS {
 		}
 	}
 	
-	// Generate and store a list of twin primes, count refers to the lower number in the pair.
-	public void generateTwinPrimes(int start, int count)
+	
+	// Generate and store a list of twin primes.
+	public void generateTwinPrimes()
 	{
 		primePairList.clear();
-		
-		int generatedTwinPrimes = 0;
-		int i = start;
-		int j = i + 2;
-		while (generatedTwinPrimes < count) {
-			BigInteger val1 = BigInteger.valueOf(i);
-			BigInteger val2 = BigInteger.valueOf(j);
-			Pair<BigInteger> pair = createPair(val1, val2);
-			if (isTwinPrime(pair)) {
-				addTwinPrime(pair);
-				generatedTwinPrimes++;
+		for (int i = 0; i < primeList.size()-1; i++)
+		{
+			if (primeList.get(i+1).equals((primeList.get(i).add(BigInteger.valueOf(2)))))
+			{
+				primePairList.add(new Pair<BigInteger>(primeList.get(i), (primeList.get(i+1))));
 			}
-			i++;
-			j++;
 		}
 	}
 	
 	// Generate and store the hexagon crosses, along with the two twin primes that generate the hexagon cross.
-	public void generateHexPrimes(int start, int count)
+	public void generateHexPrimes()
 	{
 		hexagonCrossList.clear();
-		
-		int i = start;
-		int j;
-		
-		//Avoid divide by 0
-		if (start == 0) j = i + 1;
-		else j = i * 2;
-		
-		int generatedHexCrosses = 0;
-		
-		while (generatedHexCrosses < count) {
+		generateTwinPrimes();
+		for (int i=0; i < primePairList.size()-1; i++)
+		{
+			BigInteger n = primePairList.get(i).getPairVal1().add(BigInteger.ONE);
 			
-			//Lower Twin Prime values
-			BigInteger val1 = BigInteger.valueOf(i);
-			BigInteger val2 = BigInteger.valueOf(j);
-			Pair<BigInteger> hexCrossPair = createPair(val1, val2);
-			if (isHexagonCross(hexCrossPair)) {
-				addHexagonCross(hexCrossPair);
-				generatedHexCrosses++;
+			for (int j=i+1; j < primePairList.size(); j++)
+			{
+				BigInteger twoN = primePairList.get(j).getPairVal1().add(BigInteger.ONE);
+				if (n.multiply(BigInteger.valueOf(2)).equals(twoN) )
+				{
+					hexagonCrossList.add(new Pair<BigInteger>(n, twoN));				
+				}		
 			}
-			
-			i++;
-			j = i * 2;
 		}
 	}
+		
+
 	
 	//----------------------Prime Iterator--------------------------
 	public class PrimeIterator implements Iterator<BigInteger> {
